@@ -15,6 +15,7 @@
 ### Dockerfile's & docker-compose
 1. `backend/Dockerfile`. Сборка проекта происходит в docker-контейнере, после чего готовая сборка публикуется в контейнере `app-backend`.
 2. `client/Dockerfile`. Сборка проекта также происходит в изолированном docker-контейнере. Публикация осуществляется с использованием `nginx` в контейнере `app-client`.
+3. `docker-compose.yaml`. Ничего необычного: последовательно выполняет Dockerfile бэкенда и фронтенда, прокидывет им необходимые порты для доступа.
 
 ## How-to-use
 1. `git clone https://github.com/developman2013/docker-template.git`
