@@ -1,0 +1,6 @@
+<button (click)="listUpdate()">Update</button>
+<hr>
+<div *ngFor="let item of temperatures">
+  {{item.date}} | {{item.summary}} | {{item.temperatureC}} | {{item.temperatureF}}
+  <hr>
+</div>

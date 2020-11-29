@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  app-server:
+    image: app-server
+    container_name: app-server
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - '5000:80'
+    restart: always
+
+  app-client:
+    image: app-client
+    container_name: app-client
+    build:
+      context: client
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    restart: always
