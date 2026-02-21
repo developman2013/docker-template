@@ -3,24 +3,31 @@ set -euo pipefail
 
 FRONTEND_URL="${FRONTEND_URL:-http://localhost}"
 API_BASE_URL="${API_BASE_URL:-http://localhost:5001}"
+SMOKE_TIMEOUT_SECONDS="${SMOKE_TIMEOUT_SECONDS:-90}"
+SMOKE_RETRY_DELAY_SECONDS="${SMOKE_RETRY_DELAY_SECONDS:-2}"
 
-frontend_status="$(curl -sS -o /dev/null -w "%{http_code}" "${FRONTEND_URL}")"
-api_health_status="$(curl -sS -o /dev/null -w "%{http_code}" "${API_BASE_URL}/healthz")"
-api_forecast_status="$(curl -sS -o /dev/null -w "%{http_code}" "${API_BASE_URL}/weatherforecast")"
+wait_for_http_200() {
+  local url="$1"
+  local deadline=$((SECONDS + SMOKE_TIMEOUT_SECONDS))
+  local status=""
 
-if [[ "${frontend_status}" != "200" ]]; then
-  echo "Smoke test failed: frontend status ${frontend_status}"
-  exit 1
-fi
+  while (( SECONDS < deadline )); do
+    status="$(curl -sS -o /dev/null -w "%{http_code}" "${url}" || true)"
 
-if [[ "${api_health_status}" != "200" ]]; then
-  echo "Smoke test failed: health endpoint status ${api_health_status}"
-  exit 1
-fi
+    if [[ "${status}" == "200" ]]; then
+      echo "Ready: ${url}"
+      return 0
+    fi
 
-if [[ "${api_forecast_status}" != "200" ]]; then
-  echo "Smoke test failed: weatherforecast status ${api_forecast_status}"
-  exit 1
-fi
+    sleep "${SMOKE_RETRY_DELAY_SECONDS}"
+  done
+
+  echo "Smoke test failed: ${url} did not return 200 within ${SMOKE_TIMEOUT_SECONDS}s (last status: ${status:-n/a})"
+  return 1
+}
+
+wait_for_http_200 "${FRONTEND_URL}"
+wait_for_http_200 "${API_BASE_URL}/healthz"
+wait_for_http_200 "${API_BASE_URL}/weatherforecast"
 
 echo "Smoke test passed"
