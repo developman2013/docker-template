@@ -1,6 +1,35 @@
-<button (click)="listUpdate()">Update</button>
-<hr>
-<div *ngFor="let item of temperatures">
-  {{item.date}} | {{item.summary}} | {{item.temperatureC}} | {{item.temperatureF}}
-  <hr>
-</div>
+<section class="weather">
+  <header class="weather__header">
+    <h1>Weather Forecast</h1>
+    <button type="button" (click)="refresh()">Refresh</button>
+  </header>
+
+  @if (vm$ | async; as vm) {
+    @if (vm.loading) {
+      <p class="weather__status">Loading...</p>
+    } @else if (vm.error) {
+      <p class="weather__status weather__status--error">{{ vm.error }}</p>
+    } @else {
+      <table class="weather__table">
+        <thead>
+          <tr>
+            <th>Date (UTC)</th>
+            <th>Summary</th>
+            <th>Temp C</th>
+            <th>Temp F</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of vm.data; track item.date) {
+            <tr>
+              <td>{{ item.date | date: 'yyyy-MM-dd' : 'UTC' }}</td>
+              <td>{{ item.summary }}</td>
+              <td>{{ item.temperatureC }}</td>
+              <td>{{ item.temperatureF }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</section>

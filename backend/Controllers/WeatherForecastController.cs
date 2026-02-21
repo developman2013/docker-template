@@ -1,39 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace backend.Controllers
+namespace backend.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public sealed class WeatherForecastController(ILogger<WeatherForecastController> logger) : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    private static readonly string[] Summaries =
+    [
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    ];
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<WeatherForecast>), StatusCodes.Status200OK)]
+    public ActionResult<IReadOnlyList<WeatherForecast>> Get()
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
-        }
-
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
-        {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
+        var forecasts = Enumerable.Range(1, 5)
+            .Select(index => new WeatherForecast(
+                Date: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(index)),
+                TemperatureC: Random.Shared.Next(-20, 55),
+                Summary: Summaries[Random.Shared.Next(Summaries.Length)]))
             .ToArray();
-        }
+
+        logger.LogInformation("Returning {Count} weather forecast records", forecasts.Length);
+
+        return Ok(forecasts);
     }
 }

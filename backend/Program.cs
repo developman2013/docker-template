@@ -1,26 +1,62 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using backend.Configuration;
+using Microsoft.AspNetCore.Diagnostics;
 
-namespace backend
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddProblemDetails();
+builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
+
+var corsOptions = builder.Configuration
+    .GetSection(CorsOptions.SectionName)
+    .Get<CorsOptions>() ?? new CorsOptions();
+
+builder.Services.AddCors(options =>
 {
-    public class Program
+    options.AddPolicy("ApiCors", policy =>
     {
-        public static void Main(string[] args)
+        var allowedOrigins = corsOptions.AllowedOrigins;
+
+        if (allowedOrigins.Count == 0)
         {
-            CreateHostBuilder(args).Build().Run();
+            policy.WithOrigins("http://localhost", "http://localhost:80", "http://localhost:4200");
+        }
+        else
+        {
+            policy.WithOrigins(allowedOrigins.ToArray());
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-}
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+});
+
+var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        var logger = context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("GlobalExceptionHandler");
+
+        if (exception is not null)
+        {
+            logger.LogError(exception, "Unhandled exception while processing request {Path}", context.Request.Path);
+        }
+
+        await Results.Problem(
+            title: "Unexpected error",
+            statusCode: StatusCodes.Status500InternalServerError
+        ).ExecuteAsync(context);
+    });
+});
+
+app.UseRouting();
+app.UseCors("ApiCors");
+app.UseAuthorization();
+
+app.MapHealthChecks("/healthz");
+app.MapControllers();
+
+app.Run();

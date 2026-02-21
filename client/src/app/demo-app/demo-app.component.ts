@@ -1,30 +1,45 @@
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { environment } from 'src/environments/environment';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { catchError, map, Observable, of, startWith, Subject, switchMap } from 'rxjs';
+
+import { WeatherApiService } from '../core/weather-api.service';
+import { WeatherForecast } from '../models/weather-forecast.model';
+
+type WeatherViewModel = {
+  readonly loading: boolean;
+  readonly error: string | null;
+  readonly data: WeatherForecast[];
+};
 
 @Component({
   selector: 'app-demo-app',
+  imports: [AsyncPipe, DatePipe],
   templateUrl: './demo-app.component.html',
-  styleUrls: ['./demo-app.component.scss']
+  styleUrl: './demo-app.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DemoAppComponent {
-  public temperatures: Array<WeatherForecastModel> = new Array<WeatherForecastModel>();
-  private baseUrl: string = environment['apiBaseUrl'];
+  private readonly weatherApi = inject(WeatherApiService);
+  private readonly refreshTrigger$ = new Subject<void>();
 
-  constructor(private http: HttpClient) {
-    this.listUpdate();
-   }
+  readonly vm$: Observable<WeatherViewModel> = this.refreshTrigger$.pipe(
+    startWith(void 0),
+    switchMap(() =>
+      this.weatherApi.getForecasts().pipe(
+        map((data) => ({ loading: false, error: null, data })),
+        startWith({ loading: true, error: null, data: [] as WeatherForecast[] }),
+        catchError(() =>
+          of({
+            loading: false,
+            error: 'Failed to load weather data. Please try again.',
+            data: [] as WeatherForecast[]
+          })
+        )
+      )
+    )
+  );
 
-  public async listUpdate():Promise<void>  {
-    this.temperatures = await this.http
-      .get<Array<WeatherForecastModel>>(this.baseUrl + '/weatherforecast')
-      .toPromise();
+  refresh(): void {
+    this.refreshTrigger$.next();
   }
-}
-
-export class WeatherForecastModel {
-  date: Date;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
 }

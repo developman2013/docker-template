@@ -1,30 +1,97 @@
-# Docker Template
-Это пример проекта, использующего `docker-compose` и сборку внутри docker-контейнеров.
+# Docker Template (High-Quality Baseline)
 
-Хорошо подходит как quickstarts для проектов на хакатонах, для mvp или других не шибко глобальных целей.
+A modern full-stack template with strict quality gates, automated CI, and Docker-first runtime.
 
-## Что тут у нас?
-### Angular 10 Application.
-Приложение-шаблон. Добавлен `DemoComponent`, реализующий HTTP-запрос и вывод ответа на предствление.
+## Stack
 
-### ASP.NET Core API Application
-Приложение-шаблон. Добавлены параметры `Cors`, разрешающие всё и всем. Для production-окружения необходимо настраивать `Cors` в `Startup.cs`.
+- Frontend: Angular 20 (standalone architecture)
+- Backend: ASP.NET 10 Web API
+- Runtime: Docker + Docker Compose
 
-Умеет возвращать случайным образом сгенерированные данные в ответ на `GET`-запрос.
+## Engineering Standards in This Repo
 
-### Dockerfile's & docker-compose
-1. `backend/Dockerfile`. Сборка проекта происходит в docker-контейнере, после чего готовая сборка публикуется в контейнере `app-backend`.
-2. `client/Dockerfile`. Сборка проекта также происходит в изолированном docker-контейнере. Публикация осуществляется с использованием `nginx` в контейнере `app-client`.
-3. `docker-compose.yml`. Ничего необычного: последовательно выполняет Dockerfile бэкенда и фронтенда, прокидывет им необходимые порты для доступа.
+- Strict TypeScript (`strict` + strict Angular template checks)
+- ESLint (Angular + TypeScript rules)
+- Stylelint for SCSS
+- Prettier formatting checks
+- Backend nullable reference types enabled
+- Backend warnings treated as errors
+- Centralized backend exception handling with Problem Details
+- Configurable CORS policy (no hardcoded allow-all)
+- API health endpoint for operational checks
 
-## How-to-use
-1. `git clone https://github.com/developman2013/docker-template.git`
-2. Перейти в папку репозитория. Как вариант: `cd docker-template`
-2. Выполнить сборку и запуск docker-compose: `docker-compose up -d --build`
+## Services
 
-Окружение развернёто.
+- Frontend: `http://localhost` (or `http://localhost:80`)
+- Backend: `http://localhost:5001`
 
-Что с контейнерами:
+Backend endpoints:
 
-1. `app-client`: Открыть `http://localhost:80` или `http://localhost` в браузере на целевой машине. Результатом должна быть таблица сгенерированных данных о температуре с кнопкой `update`. 
-2. `app-backend`: Открыть `http://localhost:5000/weatherforecast` также в браузере на целевой машине. В результате должен быть json-документ со случайно сгенерированными данными о температуре.
+- `GET /weatherforecast`
+- `GET /healthz`
+
+## Run Locally with Docker
+
+```bash
+docker compose up -d --build
+```
+
+Check status:
+
+```bash
+docker compose ps
+```
+
+Stop:
+
+```bash
+docker compose down
+```
+
+## Quality Commands (Frontend)
+
+```bash
+cd client
+npm ci
+npm run lint
+npm run stylelint
+npm run format:check
+npm run test
+npm run build
+```
+
+Or run all at once:
+
+```bash
+npm run quality
+```
+
+## Contract and Smoke Tests
+
+Smoke test:
+
+```bash
+bash tests/smoke/docker-smoke.sh
+```
+
+API contract test:
+
+```bash
+bash tests/contract/weatherforecast.contract.sh
+```
+
+## CI
+
+GitHub Actions workflow: `.github/workflows/ci.yml`
+
+It runs three jobs:
+
+1. Frontend quality: lint, stylelint, prettier check, unit tests, build
+2. Backend quality: restore + release build
+3. Docker validation: compose build/up + smoke + contract tests
+
+## Requirements
+
+- Docker Desktop (or Docker Engine + Compose)
+- Node.js 24+ (for local frontend tooling)
+- .NET SDK 10+ (optional, for local backend build outside Docker)
