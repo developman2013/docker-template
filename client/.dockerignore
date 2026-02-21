@@ -1,0 +1,6 @@
+node_modules
+node_modules.old.*
+.npm-cache
+.angular
+dist
+npm-debug.log*

@@ -1,27 +1,47 @@
-# App
+# Client App (Angular 20)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.4.
+Frontend built with Angular 20 standalone components and strict typing.
 
-## Development server
+## Local Development
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+```bash
+npm ci
+npm start
+```
 
-## Code scaffolding
+App URL: `http://localhost:4200`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Quality Gates
 
-## Build
+```bash
+npm run lint
+npm run stylelint
+npm run format:check
+npm run test
+npm run build
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Single command:
 
-## Running unit tests
+```bash
+npm run quality
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Formatting
 
-## Running end-to-end tests
+```bash
+npm run format
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+## Docker Production Build
 
-## Further help
+```bash
+npm run docker-build
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+## Configuration
+
+Environment files:
+
+- `src/environments/environment.ts`
+- `src/environments/environment.prod.ts`

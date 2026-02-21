@@ -1,0 +1,12 @@
+.git
+.angular
+.npm-cache
+node_modules
+**/node_modules
+dist
+**/dist
+coverage
+**/coverage
+bin
+obj
+client/package-lock.json

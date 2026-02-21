@@ -1,0 +1,55 @@
+.weather {
+  margin: 2rem auto;
+  max-width: 720px;
+  padding: 0 1rem;
+}
+
+.weather__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.weather__header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.weather__header button {
+  background: #0f172a;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+}
+
+.weather__status {
+  color: #334155;
+  margin: 0;
+}
+
+.weather__status--error {
+  color: #b91c1c;
+}
+
+.weather__table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.weather__table th,
+.weather__table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.weather__table th {
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
