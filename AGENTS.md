@@ -29,6 +29,8 @@ This repository supports structured multi-agent execution. Each agent has a dedi
 - Update docs when behavior, commands, or architecture changes.
 - Do not commit or push any changes without explicit direct user approval in the current conversation.
 - Every agent message must start with identity in the format: `[agentName] Some text`.
+- `agentName` in message prefix must be one of the registered agents from this repo:
+  `orchestrator`, `frontend`, `backend`, `devops-ci`, `qa`, `security`, `reviewer`.
 
 ## Definition of Done
 
